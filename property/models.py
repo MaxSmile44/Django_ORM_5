@@ -52,17 +52,43 @@ class Flat(models.Model):
     new_building = models.BooleanField('Новостройка',
                                        default=False,
                                        db_index=True)
-    liked_by = models.ManyToManyField(User, verbose_name='Кто лайкнул', related_name='liked_flat', null=True, blank=True)
+    liked_by = models.ManyToManyField(User, verbose_name='Кто лайкнул', related_name='liked_by', null=True, blank=True)
 
     def __str__(self):
         return f'{self.town}, {self.address} ({self.price}р.)'
 
+    class Meta:
+        unique_together = ('owner', 'owner_pure_phone', 'owners_phonenumber')
+        # constraints = (models.UniqueTogetherConstraint(fields=('owner', 'owner_pure_phone', 'owners_phonenumber'), name='unique_person'))
+
 
 class Complaint(models.Model):
-    user = models.ForeignKey(User, verbose_name='Кто жаловался', related_name='who_complained', on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        verbose_name='Кто жаловался',
+        related_name='who_did',
+        on_delete=models.CASCADE)
     flat = models.ForeignKey(
         Flat,
         verbose_name='Квартира, на которую пожаловались',
-        related_name='with_complaint',
+        related_name='for_whom',
         on_delete=models.CASCADE)
     complaint = models.TextField('Текст жалобы')
+
+    def __str__(self):
+        return f'{self.user}, {self.flat}'
+
+
+class Owner(models.Model):
+    owner = models.CharField('ФИО владельца', max_length=200)
+    owners_phonenumber = models.CharField('Номер владельца', max_length=20)
+    owner_pure_phone = PhoneNumberField('Нормализованный номер владельца', region='RU', blank=True)
+    flat_in_ownership = models.ManyToManyField(
+        Flat,
+        verbose_name='Квартиры в собственности',
+        related_name='flat',
+        db_index=True,
+        blank=True)
+
+    def __str__(self):
+        return f'{self.owner}, {self.owner_pure_phone}'
