@@ -17,9 +17,9 @@ class ComplaintAdmin(admin.ModelAdmin):
 
 
 class OwnerAdmin(admin.ModelAdmin):
-    search_fields = ('owner',)
-    readonly_fields = ('owner_pure_phone',)
-    list_display = ('owner', 'owner_pure_phone')
+    search_fields = ('name',)
+    readonly_fields = ('pure_phone',)
+    list_display = ('name', 'pure_phone')
     raw_id_fields = ('flat_in_ownership',)
 
 
