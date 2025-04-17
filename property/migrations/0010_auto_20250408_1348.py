@@ -7,7 +7,10 @@ from django.db import migrations
 def add_owner_pure_phone(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
     for flat in Flat.objects.all():
-        phonenumber = phonenumbers.parse(flat.owners_phonenumber, 'RU')
+        try:
+            phonenumber = phonenumbers.parse(flat.owners_phonenumber, 'RU')
+        except phonenumbers.phonenumberutil.NumberParseException:
+            phonenumber = phonenumbers.parse('+70000000000', 'RU')
         if phonenumbers.is_valid_number(phonenumber):
             Flat.objects.filter(pk=flat.pk).update(
                 owner_pure_phone=phonenumbers.format_number(phonenumber, phonenumbers.PhoneNumberFormat.E164))
@@ -15,7 +18,7 @@ def add_owner_pure_phone(apps, schema_editor):
             Flat.objects.filter(pk=flat.pk).update(owner_pure_phone='Некорректный номер телефона')
 
 
-def cler_owner_pure_phone(apps, schema_editor):
+def clear_owner_pure_phone(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
     for flat in Flat.objects.all():
         Flat.objects.filter(pk=flat.pk).update(owner_pure_phone='')
@@ -28,5 +31,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(add_owner_pure_phone, cler_owner_pure_phone),
+        migrations.RunPython(add_owner_pure_phone, clear_owner_pure_phone),
     ]
