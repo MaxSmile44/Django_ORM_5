@@ -5,7 +5,7 @@ from django.db import migrations
 
 def find_new_building(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
-    for flat in Flat.objects.all():
+    for flat in Flat.objects.all().iterator():
         if flat.construction_year >= 2015:
             Flat.objects.filter(pk=flat.pk).update(new_building=True)
 

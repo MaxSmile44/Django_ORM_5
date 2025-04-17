@@ -6,7 +6,7 @@ from django.db import migrations
 
 def add_owner_pure_phone(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
-    for flat in Flat.objects.all():
+    for flat in Flat.objects.all().iterator():
         try:
             phonenumber = phonenumbers.parse(flat.owners_phonenumber, 'RU')
         except phonenumbers.phonenumberutil.NumberParseException:
@@ -20,7 +20,7 @@ def add_owner_pure_phone(apps, schema_editor):
 
 def clear_owner_pure_phone(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
-    for flat in Flat.objects.all():
+    for flat in Flat.objects.all().iterator():
         Flat.objects.filter(pk=flat.pk).update(owner_pure_phone='')
 
 
